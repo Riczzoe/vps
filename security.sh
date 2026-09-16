@@ -18,6 +18,8 @@ fi
 # -----------------------
 SSHD_CONFIG="/etc/ssh/sshd_config"
 SSH_HARDENING_CONFIG="/etc/ssh/sshd_config.d/00-vps-security.conf"
+EXTRA_TCP_PORTS=(443 8443)
+EXTRA_UDP_PORTS=()
 
 if systemctl cat ssh.service >/dev/null 2>&1; then
     SSH_SERVICE="ssh"
@@ -144,6 +146,14 @@ if ufw status | grep -Eiq "^${new_port}/tcp.*DENY"; then
     echo -e "${red}UFW already denies ${new_port}/tcp.${none}"
     rollback
 fi
+
+for port in "${EXTRA_TCP_PORTS[@]}"; do
+    ufw allow "${port}/tcp"
+done
+
+for port in "${EXTRA_UDP_PORTS[@]}"; do
+    ufw allow "${port}/udp"
+done
 
 ufw allow "$new_port/tcp"
 
