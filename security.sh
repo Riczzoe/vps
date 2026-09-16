@@ -16,7 +16,6 @@ fi
 # -----------------------
 # Configuration
 # -----------------------
-SSHD_CONFIG="/etc/ssh/sshd_config"
 SSH_HARDENING_CONFIG="/etc/ssh/sshd_config.d/00-vps-security.conf"
 EXTRA_TCP_PORTS=(443 8443)
 EXTRA_UDP_PORTS=()
@@ -53,7 +52,6 @@ cp -a /etc/default/ufw "$backup_dir/ufw-default" 2>/dev/null || true
 cp -a /etc/fail2ban "$backup_dir/" 2>/dev/null || true
 
 echo -e "${green}Backup:${none} $backup_dir"
-
 
 if [[ ! -s /root/.ssh/authorized_keys ]]; then
     echo -e "${red}No root authorized_keys found.${none}"
@@ -142,11 +140,7 @@ grep -Eq '^permitrootlogin (prohibit-password|without-password)$' <<< "$effectiv
 # -----------------------
 # UFW
 # -----------------------
-if ufw status | grep -Eiq "^${new_port}/tcp.*DENY"; then
-    echo -e "${red}UFW already denies ${new_port}/tcp.${none}"
-    rollback
-fi
-
+ufw default deny incoming
 for port in "${EXTRA_TCP_PORTS[@]}"; do
     ufw allow "${port}/tcp"
 done
@@ -157,16 +151,12 @@ done
 
 ufw allow "$new_port/tcp"
 
-
-# -----------------------
 # IPv6 firewall
-# -----------------------
 if ip -6 addr show scope global | grep -q 'inet6'; then
     grep -q '^IPV6=yes' /etc/default/ufw
 fi
 
 ufw --force enable
-
 
 # -----------------------
 # Restart SSH
@@ -191,7 +181,8 @@ bantime = 1h
 EOF
 
 fail2ban-client -t
-systemctl enable --now fail2ban
+systemctl enable fail2ban
+systemctl restart fail2ban
 
 
 # -----------------------
@@ -210,6 +201,23 @@ read -r -p "Did the key login succeed? [y/N] " answer
 
 if [[ "$answer" != "y" && "$answer" != "Y" ]]; then
     rollback
+fi
+
+# -----------------------
+# Remove old SSH UFW rule
+# -----------------------
+keep_old_port=0
+
+for port in "${EXTRA_TCP_PORTS[@]}"; do
+    if [[ "$old_port" == "$port" ]]; then
+        keep_old_port=1
+        break
+    fi
+done
+
+if [[ "$old_port" != "$new_port" && "$keep_old_port" -eq 0 ]]; then
+    echo -e "${yellow}Removing old SSH UFW rule: ${old_port}/tcp${none}"
+    ufw --force delete allow "${old_port}/tcp" 2>/dev/null || true
 fi
 
 trap - ERR
