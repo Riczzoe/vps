@@ -17,6 +17,7 @@ fi
 # Configuration
 # -----------------------
 SSHD_CONFIG="/etc/ssh/sshd_config"
+SSH_HARDENING_CONFIG="/etc/ssh/sshd_config.d/00-vps-security.conf"
 
 if systemctl cat ssh.service >/dev/null 2>&1; then
     SSH_SERVICE="ssh"
@@ -116,18 +117,13 @@ echo -e "${yellow}SSH port:${none} $old_port -> $new_port"
 # -----------------------
 # SSH config
 # -----------------------
-sed -ri 's/^[[:space:]]*Port[[:space:]]+[0-9]+/# &/' "$SSHD_CONFIG"
-
-cat >> "$SSHD_CONFIG" <<EOF
-
-# VPS Security
+cat > "$SSH_HARDENING_CONFIG" <<EOF
 Port $new_port
 PubkeyAuthentication yes
 PasswordAuthentication no
 KbdInteractiveAuthentication no
 PermitRootLogin prohibit-password
 EOF
-
 
 # -----------------------
 # Validate SSH
