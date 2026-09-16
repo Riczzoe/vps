@@ -135,7 +135,7 @@ grep -q "^port $new_port$" <<< "$effective_config"
 grep -q '^pubkeyauthentication yes$' <<< "$effective_config"
 grep -q '^passwordauthentication no$' <<< "$effective_config"
 grep -q '^kbdinteractiveauthentication no$' <<< "$effective_config"
-grep -q '^permitrootlogin prohibit-password$' <<< "$effective_config"
+grep -Eq '^permitrootlogin (prohibit-password|without-password)$' <<< "$effective_config"
 
 # -----------------------
 # UFW
