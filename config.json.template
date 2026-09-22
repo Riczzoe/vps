@@ -37,9 +37,12 @@
     ],
     "outbounds": [
         {
-            "protocol": "freedom",
-            "tag": "direct"
-        },
+    	    "tag": "direct",
+    	    "protocol": "freedom",
+    	    "streamSettings": {
+    	      	"sockopt": { "domainStrategy": "UseIPv4" }
+    	    }
+    	},
         {
             "protocol": "blackhole",
             "tag": "block"
