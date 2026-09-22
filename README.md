@@ -1,25 +1,36 @@
 ## VPS 安全 (SSH) 脚本
+执行该脚本之前，请先将你的ssh公钥复制到vps中，可用下列命令：
+
+```bash
+# ssh-copy-id -i ~/.ssh/公钥文件名 user@ip
+ssh-copy-id -i ~/.ssh/id_ed25519_vps.pub root@103.97.201.154
+```
+
 只需要以 root 的身份执行 `security.sh` 脚本。
 
 ```bash
-chmod +x ./security.sh
-# 如果是 root 用户, 则执行
-./security.sh
+bash security.sh
+
 # 如果是非 root 用户, 则执行
-sudo ./security.sh
+sudo bash security.sh
 ```
 
 ## Vless + reality 脚本
 打开`vless.sh`文件，将你vps的公网地址填入第23行就好，之后只需要以 root 的身份执行 `vless.sh` 脚本。
 
 ```bash
-chmod +x ./vless.sh
-# 如果是 root 用户, 则执行
-./vless.sh
+bash vless.sh 
+
 # 如果是非 root 用户, 则执行
-sudo ./vless.sh
+sudo vless.sh
 ```
 执行成功后，终端会打印 url 格式或者 mihomo 支持的格式的 vless 节点，按需复制导入对应的软件即可。
+
+## bbr + fq
+一键开启 bbr + fq:
+```bash
+bash bbr.sh
+```
 ##  常用的检测脚本
 
 - 最优sni域名
@@ -67,7 +78,7 @@ sudo ./vless.sh
     -w '最终 URL: %{url_effective}\n' \
     https://www.google.com/
   rm -f "$jar"
-
+  
   # Youtube
   html=$(curl -4 -sSL --max-time 10 -H 'Accept-Language: en' -b 'YSC=BiCUU3-5Gdk; CONSENT=YES+cb.20220301-11-p0.en+FX+700; GPS=1; VISITOR_INFO1_LIVE=4VwPMkB7W5A; PREF=tz=Asia.Shanghai; _gcl_au=1.1.1809531354.1646633279' 'https://www.youtube.com/premium' 2>&1); if [[ "$html" == curl:* ]] || [[ -z "$html" ]]; then echo '连接失败'; elif grep -q 'www\.google\.cn' <<< "$html"; then echo '中国 [CN]'; elif grep -q 'Premium is not available in your country' <<< "$html"; then echo '禁会员'; elif grep -q 'ad-free' <<< "$html"; then region=$(grep -oE '"contentRegion":"[^"]+"' <<< "$html" | head -n1 | cut -d'"' -f4); echo "Premium 可用，地区：[${region:-未知}]"; else echo '无法识别'; fi
   ```
