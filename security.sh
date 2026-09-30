@@ -14,6 +14,13 @@ if (( EUID != 0 )); then
 fi
 
 # -----------------------
+# Dependencies
+# -----------------------
+apt-get update
+apt-get install -y ufw fail2ban
+
+
+# -----------------------
 # Configuration
 # -----------------------
 SSH_HARDENING_CONFIG="/etc/ssh/sshd_config.d/00-vps-security.conf"
@@ -31,13 +38,6 @@ if ufw status | grep -q '^Status: active'; then
 else
     UFW_WAS_ACTIVE=0
 fi
-
-
-# -----------------------
-# Dependencies
-# -----------------------
-apt-get update
-apt-get install -y ufw fail2ban
 
 
 # -----------------------
@@ -62,10 +62,19 @@ fi
 # Rollback
 # -----------------------
 rollback() {
+    local exit_code=$?
+    local line_no=${BASH_LINENO[0]:-unknown}
+    local failed_cmd=${BASH_COMMAND:-unknown}
+
     trap - ERR
     set +e
 
-    echo -e "${red}SSH setup failed. Rolling back...${none}"
+    echo
+    echo -e "${red}SSH setup failed.${none}"
+    echo -e "${red}Exit code:${none} $exit_code"
+    echo -e "${red}Line:${none} $line_no"
+    echo -e "${red}Command:${none} $failed_cmd"
+    echo -e "${yellow}Rolling back...${none}"
 
     rm -rf /etc/ssh
     rm -rf /etc/fail2ban
@@ -98,10 +107,7 @@ trap rollback ERR
 # -----------------------
 # SSH port
 # -----------------------
-old_port=$(
-    sshd -T |
-    awk '$1 == "port" {print $2; exit}'
-)
+old_port=$(sshd -T | awk '$1 == "port" {print $2}')
 
 while :; do
     new_port=$(shuf -i 20000-60000 -n 1)

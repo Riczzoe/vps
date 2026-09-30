@@ -43,10 +43,12 @@ ARCH="$(uname -m)"
 
 case "$ARCH" in
     x86_64|amd64)
-        SS_ARCH="x86_64-unknown-linux-gnu"
+        # SS_ARCH="x86_64-unknown-linux-gnu"
+        SS_ARCH="x86_64-unknown-linux-musl"
         ;;
     aarch64|arm64)
-        SS_ARCH="aarch64-unknown-linux-gnu"
+        # SS_ARCH="aarch64-unknown-linux-gnu"
+        SS_ARCH="aarch64-unknown-linux-musl"
         ;;
     *)
         echo -e "${red}Unsupported architecture: ${ARCH}${none}"
