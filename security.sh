@@ -23,7 +23,7 @@ apt-get install -y ufw fail2ban
 # -----------------------
 # Configuration
 # -----------------------
-SSH_HARDENING_CONFIG="/etc/ssh/sshd_config.d/00-vps-security.conf"
+SSH_HARDENING_CONFIG="/etc/ssh/sshd_config.d/00-00-vps-security.conf"
 EXTRA_TCP_PORTS=(443 8443)
 EXTRA_UDP_PORTS=()
 
@@ -134,7 +134,6 @@ EOF
 # -----------------------
 # Validate SSH
 # -----------------------
-sshd -t
 effective_config=$(sshd -T)
 
 grep -q "^port $new_port$" <<< "$effective_config"
