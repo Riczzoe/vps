@@ -1,3 +1,9 @@
+## 新机器
+执行下列命令
+
+```bash
+apt update && apt install git vim -y && git clone https://github.com/Riczzoe/vps.git && cd vps
+```
 ## VPS 安全 (SSH) 脚本
 执行该脚本之前，请先将你的ssh公钥复制到vps中，可用下列命令：
 
