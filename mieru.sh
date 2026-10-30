@@ -112,7 +112,7 @@ jq -n --arg port_range "$MIERU_PORT_RANGE" --arg protocol "$transport" \
 NODE_NAME_YAML="$(jq -cn --arg value "$node_name" '$value')"
 SERVER_YAML="$(jq -cn --arg value "$server_address" '$value')"
 cat > "${TMP_DIR}/mieru-node.txt" <<EOF
-    - {name: ${NODE_NAME_YAML}, type: mieru, server: ${SERVER_YAML}, port-range: ${MIERU_PORT_RANGE}, transport: ${transport}, username: ${MIERU_USERNAME}, password: ${MIERU_PASSWORD}, multiplexing: MULTIPLEXING_LOW, udp: true}
+    - {name: ${NODE_NAME_YAML}, type: mieru, server: ${SERVER_YAML}, port-range: ${MIERU_PORT_RANGE}, transport: ${transport}, username: ${MIERU_USERNAME}, password: ${MIERU_PASSWORD}, multiplexing: MULTIPLEXING_OFF, handshake-mode: HANDSHAKE_NO_WAIT, udp: true}
 EOF
 
 # Import & start proxy service
